@@ -26,7 +26,7 @@ public class Launch {
 
 
             if(parser.getNumberOfSyntaxErrors() == 0) {
-                var result = new gBaseVisitor<>().visit(tree);
+                var result = new MyVisitor().visit(tree);
                 System.out.println(result);
             }
 
