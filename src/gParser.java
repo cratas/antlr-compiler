@@ -951,29 +951,6 @@ public class gParser extends Parser {
 			else return visitor.visitChildren(this);
 		}
 	}
-	public static class AddContext extends ExpContext {
-		public Token op;
-		public List<ExpContext> exp() {
-			return getRuleContexts(ExpContext.class);
-		}
-		public ExpContext exp(int i) {
-			return getRuleContext(ExpContext.class,i);
-		}
-		public AddContext(ExpContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gListener ) ((gListener)listener).enterAdd(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gListener ) ((gListener)listener).exitAdd(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof gVisitor ) return ((gVisitor<? extends T>)visitor).visitAdd(this);
-			else return visitor.visitChildren(this);
-		}
-	}
 	public static class IdentifierContext extends ExpContext {
 		public TerminalNode ID() { return getToken(gParser.ID, 0); }
 		public IdentifierContext(ExpContext ctx) { copyFrom(ctx); }
@@ -988,6 +965,29 @@ public class gParser extends Parser {
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof gVisitor ) return ((gVisitor<? extends T>)visitor).visitIdentifier(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class AContext extends ExpContext {
+		public Token op;
+		public List<ExpContext> exp() {
+			return getRuleContexts(ExpContext.class);
+		}
+		public ExpContext exp(int i) {
+			return getRuleContext(ExpContext.class,i);
+		}
+		public AContext(ExpContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof gListener ) ((gListener)listener).enterA(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof gListener ) ((gListener)listener).exitA(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof gVisitor ) return ((gVisitor<? extends T>)visitor).visitA(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1331,15 +1331,15 @@ public class gParser extends Parser {
 						break;
 					case 2:
 						{
-						_localctx = new AddContext(new ExpContext(_parentctx, _parentState));
+						_localctx = new AContext(new ExpContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_exp);
 						setState(146);
 						if (!(precpred(_ctx, 5))) throw new FailedPredicateException(this, "precpred(_ctx, 5)");
 						setState(147);
-						((AddContext)_localctx).op = _input.LT(1);
+						((AContext)_localctx).op = _input.LT(1);
 						_la = _input.LA(1);
 						if ( !(_la==T__16 || _la==T__17) ) {
-							((AddContext)_localctx).op = (Token)_errHandler.recoverInline(this);
+							((AContext)_localctx).op = (Token)_errHandler.recoverInline(this);
 						}
 						else {
 							if ( _input.LA(1)==Token.EOF ) matchedEOF = true;

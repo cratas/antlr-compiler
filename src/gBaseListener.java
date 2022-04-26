@@ -159,18 +159,6 @@ public class gBaseListener implements gListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAdd(gParser.AddContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAdd(gParser.AddContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterIdentifier(gParser.IdentifierContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -178,6 +166,18 @@ public class gBaseListener implements gListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitIdentifier(gParser.IdentifierContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterA(gParser.AContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitA(gParser.AContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

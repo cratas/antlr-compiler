@@ -83,19 +83,19 @@ public interface gVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitPar(gParser.ParContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code add}
-	 * labeled alternative in {@link gParser#exp}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAdd(gParser.AddContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code identifier}
 	 * labeled alternative in {@link gParser#exp}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitIdentifier(gParser.IdentifierContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code a}
+	 * labeled alternative in {@link gParser#exp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitA(gParser.AContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code comp}
 	 * labeled alternative in {@link gParser#exp}.

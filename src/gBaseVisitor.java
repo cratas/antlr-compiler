@@ -100,14 +100,14 @@ public class gBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements gVis
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAdd(gParser.AddContext ctx) { return visitChildren(ctx); }
+	@Override public T visitIdentifier(gParser.IdentifierContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitIdentifier(gParser.IdentifierContext ctx) { return visitChildren(ctx); }
+	@Override public T visitA(gParser.AContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

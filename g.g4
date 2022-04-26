@@ -54,7 +54,7 @@ exp
     | '(' exp ')'                           # par
     | '!(' exp ')'                          # not
     | exp op=('*'|'/'|'%') exp              # mul
-    | exp op=('+'|'-') exp                  # add
+    | exp op=('+'|'-') exp                  # a
     | STRING ('.') STRING                   # concat
     | exp comp=('<'|'>'|'=='|'!=') exp      # comp
     | exp '&&' exp                          # and
