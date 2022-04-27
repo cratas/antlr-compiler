@@ -13,7 +13,7 @@ import static org.antlr.v4.runtime.CharStreams.fromFileName;
 public class Launch {
     public static void main(String[] args) {
         try {
-            String source = "input1.txt";
+            String source = "input2.txt";
             System.out.println("Parsing:" + source);
             CharStream cs = (CharStream) fromFileName(source);
             gLexer lexer = new gLexer(cs);
@@ -24,12 +24,12 @@ public class Launch {
 
             ParseTree tree = parser.program();
 
-
             if(parser.getNumberOfSyntaxErrors() == 0) {
                 var result = new MyVisitor().visit(tree);
                 System.out.println(result);
             }
 
+            System.out.println(MyVisitor.generatedOutput.toString());
         } catch(IOException e) {
             e.printStackTrace();
         }

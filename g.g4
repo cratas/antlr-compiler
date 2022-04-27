@@ -6,6 +6,7 @@ program: line* ;
 line
     : declaration
     | assigment
+    | exp
     | condition
     | loop
     | print ';'
