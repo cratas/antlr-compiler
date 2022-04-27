@@ -29,10 +29,10 @@ output : STRING(',' exp ',')*(',' exp)*
 read : 'read' ID (',' ID)*;
 
 condition
-    : 'if ('exp')' block ('else' else)*
+    : 'if ('exp')' block ('else' elseBlock)*
     ;
 
-else
+elseBlock
     : block
     | condition
     ;

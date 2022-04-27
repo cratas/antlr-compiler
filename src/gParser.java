@@ -23,12 +23,12 @@ public class gParser extends Parser {
 		STRING=33, ID=34, WS=35, COMMENT=36;
 	public static final int
 		RULE_program = 0, RULE_line = 1, RULE_declaration = 2, RULE_assigment = 3, 
-		RULE_print = 4, RULE_output = 5, RULE_read = 6, RULE_condition = 7, RULE_else = 8, 
+		RULE_print = 4, RULE_output = 5, RULE_read = 6, RULE_condition = 7, RULE_elseBlock = 8, 
 		RULE_loop = 9, RULE_block = 10, RULE_exp = 11, RULE_datatype = 12;
 	private static String[] makeRuleNames() {
 		return new String[] {
 			"program", "line", "declaration", "assigment", "print", "output", "read", 
-			"condition", "else", "loop", "block", "exp", "datatype"
+			"condition", "elseBlock", "loop", "block", "exp", "datatype"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
@@ -641,11 +641,11 @@ public class gParser extends Parser {
 		public BlockContext block() {
 			return getRuleContext(BlockContext.class,0);
 		}
-		public List<ElseContext> else_() {
-			return getRuleContexts(ElseContext.class);
+		public List<ElseBlockContext> elseBlock() {
+			return getRuleContexts(ElseBlockContext.class);
 		}
-		public ElseContext else_(int i) {
-			return getRuleContext(ElseContext.class,i);
+		public ElseBlockContext elseBlock(int i) {
+			return getRuleContext(ElseBlockContext.class,i);
 		}
 		public ConditionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -691,7 +691,7 @@ public class gParser extends Parser {
 					setState(98);
 					match(T__7);
 					setState(99);
-					else_();
+					elseBlock();
 					}
 					} 
 				}
@@ -712,35 +712,35 @@ public class gParser extends Parser {
 		return _localctx;
 	}
 
-	public static class ElseContext extends ParserRuleContext {
+	public static class ElseBlockContext extends ParserRuleContext {
 		public BlockContext block() {
 			return getRuleContext(BlockContext.class,0);
 		}
 		public ConditionContext condition() {
 			return getRuleContext(ConditionContext.class,0);
 		}
-		public ElseContext(ParserRuleContext parent, int invokingState) {
+		public ElseBlockContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_else; }
+		@Override public int getRuleIndex() { return RULE_elseBlock; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gListener ) ((gListener)listener).enterElse(this);
+			if ( listener instanceof gListener ) ((gListener)listener).enterElseBlock(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gListener ) ((gListener)listener).exitElse(this);
+			if ( listener instanceof gListener ) ((gListener)listener).exitElseBlock(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof gVisitor ) return ((gVisitor<? extends T>)visitor).visitElse(this);
+			if ( visitor instanceof gVisitor ) return ((gVisitor<? extends T>)visitor).visitElseBlock(this);
 			else return visitor.visitChildren(this);
 		}
 	}
 
-	public final ElseContext else_() throws RecognitionException {
-		ElseContext _localctx = new ElseContext(_ctx, getState());
-		enterRule(_localctx, 16, RULE_else);
+	public final ElseBlockContext elseBlock() throws RecognitionException {
+		ElseBlockContext _localctx = new ElseBlockContext(_ctx, getState());
+		enterRule(_localctx, 16, RULE_elseBlock);
 		try {
 			setState(107);
 			_errHandler.sync(this);

@@ -111,13 +111,13 @@ public class gBaseListener implements gListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterElse(gParser.ElseContext ctx) { }
+	@Override public void enterElseBlock(gParser.ElseBlockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitElse(gParser.ElseContext ctx) { }
+	@Override public void exitElseBlock(gParser.ElseBlockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

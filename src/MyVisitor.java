@@ -1,7 +1,9 @@
+import javax.management.monitor.MonitorSettingException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject>{
+public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
+    int labelCounter = 0;
     static final String INTEGER = "I";
     static final String STRING = "S";
     static final String FLOAT = "F";
@@ -11,37 +13,45 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject>{
 
     int expCounter = 0;
 
-    public class MyObject
-    {
+    public class MyObject {
         public String type;
         public String value;
-    };
-
-    @Override public MyObject visitProgram(gParser.ProgramContext ctx) {
-
-        for(var l : ctx.line()) {
-            visit(l);
-        }
-
-        return null;
     }
-    @Override public MyObject visitDeclaration(gParser.DeclarationContext ctx) {
-        // if there are no childs, return
-        if(ctx.children.get(0) == null)
-            return null;
-
-        var dataType = ctx.datatype().children.get(0).toString();
+    @Override
+    public MyObject visitProgram(gParser.ProgramContext ctx) {
         MyObject mo = new MyObject();
 
-        for(var i : ctx.ID()) {
-            switch(dataType) {
+        for (var l : ctx.line()) {
+            if(l.assigment() != null) {
+                visitAssigment(l.assigment());
+                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+                MyVisitor.generatedOutput.append("pop");
+
+            } else
+                visit(l);
+        }
+        return mo;
+    }
+    @Override
+    public MyObject visitDeclaration(gParser.DeclarationContext ctx) {
+        MyObject mo = new MyObject();
+
+        // if there are no childs, return
+        if (ctx.children.get(0) == null)
+            return mo;
+
+        var dataType = ctx.datatype().children.get(0).toString();
+
+        for (var i : ctx.ID()) {
+            switch (dataType) {
                 case "int":
                     mo.type = INTEGER;
                     mo.value = "0";
                     break;
                 case "string":
                     mo.type = STRING;
-                    mo.value = "\"\"";;
+                    mo.value = "\"\"";
+                    ;
                     break;
                 case "float":
                     mo.type = FLOAT;
@@ -59,62 +69,130 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject>{
             MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
             MyVisitor.generatedOutput.append("push " + mo.type + " " + mo.value);
             MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-            MyVisitor.generatedOutput.append("save " +i.toString());
+            MyVisitor.generatedOutput.append("save " + i.toString());
             vars.put(i.toString(), mo.type);
-        }
-
-        return null;
-    }
-
-    @Override public MyObject visitAssigment(gParser.AssigmentContext ctx) {
-        MyObject mo = new MyObject();
-
-        if(ctx.exp() != null) {
-            return visit(ctx.exp());
-        } else {
-            if(vars.containsKey(ctx.ID().getText())) {
-                mo = visitAssigment(ctx.assigment());
-                boolean isNegative = false;
-
-                if((mo.type.equals("I")) && (mo.value != null)) {
-                    int intValue = Integer.parseInt(mo.value);
-                    isNegative = intValue < 0;
-                    if(isNegative) {
-                        intValue = intValue*-1;
-                        mo.value = Integer.toString(intValue);
-                    }
-                }
-
-                if(ctx.getChild(2).getChild(0).getChild(0) != null) {
-                    MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-                    MyVisitor.generatedOutput.append("push " + mo.type + " " + mo.value);
-                }
-
-                if(isNegative) {
-                    MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-                    MyVisitor.generatedOutput.append("uminus");
-                }
-
-                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-                MyVisitor.generatedOutput.append("save " + ctx.ID().getText());
-                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-                MyVisitor.generatedOutput.append("load " + ctx.ID().getText());
-            } else {
-                // there should be error from VerboseErrorListener class
-                System.out.println("Undefined variable");
-            }
-
-        }
-
-        if(!(ctx.getParent().getClass() == ctx.assigment().getClass())) {
-            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-            MyVisitor.generatedOutput.append("pop");
         }
 
         return mo;
     }
+    @Override
+    public MyObject visitAssigment(gParser.AssigmentContext ctx) {
+//        MyObject mo = new MyObject();
+//
+//        if(ctx.exp() != null) {
+//            return visit(ctx.exp());
+//        } else {
+//            if(vars.containsKey(ctx.ID().getText())) {
+//                mo = visitAssigment(ctx.assigment());
+//                boolean isNegative = false;
+//
+//                if((mo.type.equals("I")) && (mo.value != null)) {
+//                    int intValue = Integer.parseInt(mo.value);
+//                    isNegative = intValue < 0;
+//                    if(isNegative) {
+//                        intValue = intValue*-1;
+//                        mo.value = Integer.toString(intValue);
+//                    }
+//                }
+//
+//                if(ctx.getChild(2).getChild(0).getChild(0) != null) {
+//                    MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+//                    MyVisitor.generatedOutput.append("push " + mo.type + " " + mo.value);
+//                }
+//
+//                if(isNegative) {
+//                    MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+//                    MyVisitor.generatedOutput.append("uminus");
+//                }
+//
+//                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+//                MyVisitor.generatedOutput.append("save " + ctx.ID().getText());
+//                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+//                MyVisitor.generatedOutput.append("load " + ctx.ID().getText());
+//            } else {
+//                // there should be error from VerboseErrorListener class
+//                System.out.println("Undefined variable");
+//            }
+//
+//        }
+//
+//        if(!(ctx.getParent().getClass() == ctx.assigment().getClass())) {
+//            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+//            MyVisitor.generatedOutput.append("pop");
+//        }
+//
+//        return mo;
 
+        MyObject mo = new MyObject();
+        boolean isUminus = false;
+        boolean isItof = false;
+
+        if (ctx.exp() != null) {
+            return visit(ctx.exp());
+        }
+
+        var value = visitAssigment(ctx.assigment());
+
+        if (ctx.getChild(0) != null) {
+            if (vars.containsKey(ctx.getChild(0).toString())) {
+                String searchValue = null;
+
+                if (ctx.getChild(2).getChild(0).getChild(0) != null) {
+                    searchValue = ctx.getChild(2).getChild(0).getChild(0).getText();
+                }
+
+                var searchType = vars.get(ctx.getChild(0).toString());
+
+                if((searchType.equals("I")) && (searchValue != null)) {
+                    boolean isNegative;
+                    int intValue = Integer.parseInt(searchValue, 10);
+                    System.out.println(intValue);
+                    isNegative = intValue < 0;
+                    if(isNegative) {
+                        intValue = intValue*-1;
+                        searchValue = Integer.toString(intValue);
+                        isUminus = true;
+                    }
+                }
+
+                if (value.type.equals("I") && searchType == "F") {
+                    searchType = "I";
+                    isItof = true;
+                }
+
+                mo.type = searchType;
+                mo.value = searchValue;
+                if (mo.value != null && value.type != null) {
+                    MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+                    MyVisitor.generatedOutput.append("push " + searchType + " " + searchValue);
+                }
+
+                if (isItof) {
+                    MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+                    MyVisitor.generatedOutput.append("itof");
+                }
+
+                if (isUminus) {
+                    MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+                    MyVisitor.generatedOutput.append("uminus");
+                }
+
+    //            vars.put(vars.get(ctx.getChild(0).toString()), searchValue);
+
+                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+                MyVisitor.generatedOutput.append("save " + ctx.getChild(0).toString());
+                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+                MyVisitor.generatedOutput.append("load " + ctx.getChild(0).toString());
+        } else {
+            System.out.println("Undefined variable");
+        }
+    }
+
+        return mo;
+    }
     @Override public MyObject visitPrint(gParser.PrintContext ctx) {
+        MyObject mo = new MyObject();
+
         expCounter = 0;
 
         for(var o : ctx.output()) {
@@ -124,29 +202,33 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject>{
         MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
         MyVisitor.generatedOutput.append("print " + expCounter);
 
-        return null;
+        return mo;
     }
 
     @Override public MyObject visitOutput(gParser.OutputContext ctx) {
+        MyObject mo = new MyObject();
+
         var s = ctx.STRING();
 
         MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
         MyVisitor.generatedOutput.append("push S " + s);
 
         if(ctx.exp(0) != null) {
-            var mo = visit(ctx.exp(0));
+            mo = visit(ctx.exp(0));
 
             if(mo != null) {
-                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-                MyVisitor.generatedOutput.append("push "+ mo.type + " " + mo.value);
+                if(mo.type != null && mo.type != null) {
+                    MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+                    MyVisitor.generatedOutput.append("push "+ mo.type + " " + mo.value);
+                }
             }
             expCounter++;
         }
 
-        return null;
+        return mo;
     }
-
     @Override public MyObject visitRead(gParser.ReadContext ctx) {
+        MyObject mo = new MyObject();
         for(var i : ctx.ID()) {
             if(vars.containsKey(i.toString())) {
 
@@ -162,30 +244,186 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject>{
             }
         }
 
-//        return visitChildren(ctx);
-        return null;
+        return mo;
+    }
+    @Override public MyObject visitCondition(gParser.ConditionContext ctx) {
+        MyObject mo = new MyObject();
+
+        var condition = visit(ctx.exp());
+        if(condition.type != null) {
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("push " + condition.type + " " + condition.value.toString().toLowerCase());
+        }
+
+        MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+        MyVisitor.generatedOutput.append("fjmp " + labelCounter);
+
+        boolean isFirstCondition = true;
+
+        visitBlock(ctx.block());
+
+        if(ctx.elseBlock() != null) {
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("jmp " + (labelCounter+1));
+        }
+        MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+        MyVisitor.generatedOutput.append("label " + labelCounter);
+
+        if(ctx.elseBlock() != null) {
+            for(var c : ctx.elseBlock()) {
+                if(!isFirstCondition) {
+                    MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+                    MyVisitor.generatedOutput.append("label " + ++labelCounter);
+                }
+                else
+                    isFirstCondition = false;
+                visitElseBlock(c);
+            }
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("label " + ++labelCounter);
+        }
+        labelCounter++;
+
+        return mo;
     }
 
-    @Override public MyObject visitCondition(gParser.ConditionContext ctx) { return visitChildren(ctx); }
+    @Override public MyObject visitElseBlock(gParser.ElseBlockContext ctx) {
+        MyObject mo = new MyObject();
 
-    @Override public MyObject visitElse(gParser.ElseContext ctx) { return visitChildren(ctx); }
+        if(ctx.block() != null) {
+            return visitBlock(ctx.block());
+        }
 
-    @Override public MyObject visitLoop(gParser.LoopContext ctx) { return visitChildren(ctx); }
+        return mo;
+    }
 
-    @Override public MyObject visitBlock(gParser.BlockContext ctx) { return visitChildren(ctx); }
+    @Override public MyObject visitLoop(gParser.LoopContext ctx) {
+        MyObject mo = new MyObject();
 
+        MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+        MyVisitor.generatedOutput.append("label " + labelCounter);
+
+        visit(ctx.exp());
+
+        MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+        MyVisitor.generatedOutput.append("fjmp " + (labelCounter+1));
+
+        visitBlock(ctx.block());
+
+        MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+        MyVisitor.generatedOutput.append("jmp " + labelCounter);
+        MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+        MyVisitor.generatedOutput.append("label " + ++labelCounter);
+
+        labelCounter++;
+        return mo;
+    }
     @Override public MyObject visitPar(gParser.ParContext ctx) { return visitChildren(ctx); }
 
     @Override public MyObject visitIdentifier(gParser.IdentifierContext ctx) {
+        MyObject mo = new MyObject();
 
         MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
         MyVisitor.generatedOutput.append("load " + ctx.ID().getText() + " ");
 
-        return visitChildren(ctx);
+        return mo;
     }
-    @Override public MyObject visitA(gParser.AContext ctx) { return visitChildren(ctx); }
-    @Override public MyObject visitComp(gParser.CompContext ctx) { return visitChildren(ctx); }
-    @Override public MyObject visitOr(gParser.OrContext ctx) { return visitChildren(ctx); }
+    @Override public MyObject visitA(gParser.AContext ctx) {
+        MyObject mo = new MyObject();
+
+        var leftSide = visit(ctx.exp(0));
+        var rightSide = visit(ctx.exp(1));
+
+        if(leftSide.type != null && leftSide.value != null) {
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("push " + leftSide.type + " " + leftSide.value.toString());
+        }
+
+        if(rightSide.type != null && rightSide.value != null) {
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("push " + rightSide.type + " " + rightSide.value.toString());
+        }
+
+        if(ctx.op.getText().equals("+")) {
+            mo.value = leftSide.toString() + rightSide.toString() + "ADD\n";
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("add");
+        } else if(ctx.op.getText().equals(("-"))) {
+            mo.value = leftSide.toString() + rightSide.toString() + "SUB\n";
+            MyVisitor.generatedOutput.append("sub");
+        }
+
+        return mo;
+    }
+    @Override public MyObject visitComp(gParser.CompContext ctx) {
+        MyObject mo = new MyObject();
+
+        var leftSide = visit(ctx.exp(0));
+        var rightSide = visit(ctx.exp(1));
+
+        if (leftSide.type != null && leftSide.value != null) {
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("push " + leftSide.type + " " + leftSide.value.toString());
+
+            if (leftSide.type == "I" && rightSide.type == "F") {
+                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+                MyVisitor.generatedOutput.append("itof");
+            }
+        }
+
+        if (rightSide.type != null && rightSide.value != null) {
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("push " + rightSide.type + " " + rightSide.value.toString());
+
+            if (leftSide.type == "F" && rightSide.type == "I") {
+                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+                MyVisitor.generatedOutput.append("itof");
+            }
+        }
+
+        if (ctx.comp.getText().equals("<")) {
+            mo.value = leftSide.toString() + rightSide.toString() + "LT\n";
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("lt");
+        } else if (ctx.comp.getText().equals(">")) {
+            mo.value = leftSide.toString() + rightSide.toString() + "GT\n";
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("gt");
+        } else if (ctx.comp.getText().equals("==")) {
+            mo.value = leftSide.toString() + rightSide.toString() + "EQ\n";
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("eq");
+        } else {
+            mo.value = leftSide.toString() + rightSide.toString() + "EQ NOT\n";
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("eq");
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("not");
+        }
+
+
+        return mo;
+    }
+    @Override public MyObject visitOr(gParser.OrContext ctx) {
+        MyObject mo = new MyObject();
+
+        var leftSide = visit(ctx.exp(0));
+        var rightSide = visit(ctx.exp(1));
+
+        if(leftSide.type != null && leftSide.value != null) {
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("push " + leftSide.type + " " + leftSide.value.toString());
+        }
+        if(rightSide.type != null && rightSide.value != null) {
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("push " + rightSide.type + " " + rightSide.value.toString());
+        }
+
+        MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+        MyVisitor.generatedOutput.append("or");
+
+        return mo;
+    }
     @Override public MyObject visitBool(gParser.BoolContext ctx) {
         MyObject mo = new MyObject();
         mo.type = BOOLEAN;
@@ -201,12 +439,47 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject>{
         return mo;
     }
     @Override public MyObject visitMul(gParser.MulContext ctx) {
+        MyObject mo = new MyObject();
 
+        var leftSide = visit(ctx.exp(0));
+        var rightSide = visit(ctx.exp(1));
 
+        if(leftSide.type != null && leftSide.value != null) {
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("push " + leftSide.type + " " + leftSide.value.toString());
+        }
 
-        return visitChildren(ctx);
+        if(rightSide.type != null && rightSide.value != null) {
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("push " + rightSide.type + " " + rightSide.value.toString());
+        }
+
+        if(leftSide.type != null && rightSide.type != null) {
+            if((leftSide.type.equals("I") && rightSide.equals("F") ) || (leftSide.type.equals("F") && rightSide.type.equals("I"))) {
+                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+                MyVisitor.generatedOutput.append("itof");
+            }
+        }
+
+        if(ctx.op.getText().equals("*")) {
+            mo.value = leftSide.toString() + rightSide.toString() + "MUL\n";
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("mul");
+        } else if(ctx.op.getText().equals("%")) {
+            mo.value = leftSide.toString() + rightSide.toString() + "MOD\n";
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("mod");
+        } else if((ctx.op.getText().equals("/"))) {
+            mo.value = leftSide.toString() + rightSide.toString() + "DIV\n";
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("div");
+        }
+
+        return mo;
     }
     @Override public MyObject visitConcat(gParser.ConcatContext ctx) {
+        MyObject mo = new MyObject();
+
         String firstString = ctx.getChild(0).toString();
         String secondString = ctx.getChild(2).toString();
 
@@ -217,7 +490,7 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject>{
         MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
         MyVisitor.generatedOutput.append("concat");
 
-        return visitChildren(ctx);
+        return mo;
     }
     @Override public MyObject visitFloat(gParser.FloatContext ctx) {
         MyObject mo = new MyObject();
@@ -234,20 +507,31 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject>{
         return mo;
     }
     @Override public MyObject visitNot(gParser.NotContext ctx) {
+        MyObject mo = new MyObject();
 
-        return visitChildren(ctx);
+        visit(ctx.exp());
+        MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+        MyVisitor.generatedOutput.append("not");
+
+        return mo;
     }
     @Override public MyObject visitAnd(gParser.AndContext ctx) {
+        MyObject mo = new MyObject();
         var leftSide = visit(ctx.exp().get(0));
         var rightSide = visit(ctx.exp().get(1));
 
-        MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-        MyVisitor.generatedOutput.append("push");
+        if(leftSide.type != null && leftSide.value != null) {
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("push " + leftSide.type + " " + leftSide.value.toString());
+        }
+        if(rightSide.type != null && rightSide.value != null) {
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("push " + rightSide.type + " " + rightSide.value.toString());
+        }
 
         MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
         MyVisitor.generatedOutput.append("and");
 
-        return visitChildren(ctx);
+        return mo;
     }
-    @Override public MyObject visitDatatype(gParser.DatatypeContext ctx) { return visitChildren(ctx); }
 }

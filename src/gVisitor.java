@@ -58,11 +58,11 @@ public interface gVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCondition(gParser.ConditionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link gParser#else}.
+	 * Visit a parse tree produced by {@link gParser#elseBlock}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitElse(gParser.ElseContext ctx);
+	T visitElseBlock(gParser.ElseBlockContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link gParser#loop}.
 	 * @param ctx the parse tree

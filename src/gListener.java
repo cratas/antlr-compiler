@@ -87,15 +87,15 @@ public interface gListener extends ParseTreeListener {
 	 */
 	void exitCondition(gParser.ConditionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link gParser#else}.
+	 * Enter a parse tree produced by {@link gParser#elseBlock}.
 	 * @param ctx the parse tree
 	 */
-	void enterElse(gParser.ElseContext ctx);
+	void enterElseBlock(gParser.ElseBlockContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link gParser#else}.
+	 * Exit a parse tree produced by {@link gParser#elseBlock}.
 	 * @param ctx the parse tree
 	 */
-	void exitElse(gParser.ElseContext ctx);
+	void exitElseBlock(gParser.ElseBlockContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link gParser#loop}.
 	 * @param ctx the parse tree

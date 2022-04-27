@@ -85,7 +85,7 @@ print
 output
 read
 condition
-else
+elseBlock
 loop
 block
 exp
