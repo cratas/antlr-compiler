@@ -24,8 +24,8 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
         for (var l : ctx.line()) {
             if(l.assigment() != null) {
                 visitAssigment(l.assigment());
-                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-                MyVisitor.generatedOutput.append("pop");
+//                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+//                MyVisitor.generatedOutput.append("pop");
 
             } else
                 visit(l);
@@ -96,7 +96,6 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
                 if (ctx.getChild(2).getChild(0).getChild(0) != null) {
                     searchValue = ctx.getChild(2).getChild(0).getChild(0).getText();
                 }
-
                 var searchType = vars.get(ctx.getChild(0).toString());
 
                 if((searchType.equals("I")) && (searchValue != null)) {
@@ -160,6 +159,12 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
                 MyVisitor.generatedOutput.append("save " + ctx.getChild(0).toString());
                 MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
                 MyVisitor.generatedOutput.append("load " + ctx.getChild(0).toString());
+
+                if(!(ctx.getParent().getClass().toString().equals(ctx.assigment().getClass().toString()))) {
+                    MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+                    MyVisitor.generatedOutput.append("pop");
+                }
+
         } else {
             System.out.println("Undefined variable");
         }
