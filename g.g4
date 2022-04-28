@@ -38,7 +38,7 @@ elseBlock
     ;
 
 loop
-    : 'while(' exp ')' block
+    : 'while('exp')' block
     ;
 
 block

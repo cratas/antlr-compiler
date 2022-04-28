@@ -70,6 +70,7 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
             MyVisitor.generatedOutput.append("push " + mo.type + " " + mo.value);
             MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
             MyVisitor.generatedOutput.append("save " + i.toString());
+
             vars.put(i.toString(), mo.type);
         }
 
@@ -77,52 +78,6 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
     }
     @Override
     public MyObject visitAssigment(gParser.AssigmentContext ctx) {
-//        MyObject mo = new MyObject();
-//
-//        if(ctx.exp() != null) {
-//            return visit(ctx.exp());
-//        } else {
-//            if(vars.containsKey(ctx.ID().getText())) {
-//                mo = visitAssigment(ctx.assigment());
-//                boolean isNegative = false;
-//
-//                if((mo.type.equals("I")) && (mo.value != null)) {
-//                    int intValue = Integer.parseInt(mo.value);
-//                    isNegative = intValue < 0;
-//                    if(isNegative) {
-//                        intValue = intValue*-1;
-//                        mo.value = Integer.toString(intValue);
-//                    }
-//                }
-//
-//                if(ctx.getChild(2).getChild(0).getChild(0) != null) {
-//                    MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-//                    MyVisitor.generatedOutput.append("push " + mo.type + " " + mo.value);
-//                }
-//
-//                if(isNegative) {
-//                    MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-//                    MyVisitor.generatedOutput.append("uminus");
-//                }
-//
-//                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-//                MyVisitor.generatedOutput.append("save " + ctx.ID().getText());
-//                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-//                MyVisitor.generatedOutput.append("load " + ctx.ID().getText());
-//            } else {
-//                // there should be error from VerboseErrorListener class
-//                System.out.println("Undefined variable");
-//            }
-//
-//        }
-//
-//        if(!(ctx.getParent().getClass() == ctx.assigment().getClass())) {
-//            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-//            MyVisitor.generatedOutput.append("pop");
-//        }
-//
-//        return mo;
-
         MyObject mo = new MyObject();
         boolean isUminus = false;
         boolean isItof = false;
@@ -135,6 +90,7 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
 
         if (ctx.getChild(0) != null) {
             if (vars.containsKey(ctx.getChild(0).toString())) {
+
                 String searchValue = null;
 
                 if (ctx.getChild(2).getChild(0).getChild(0) != null) {
@@ -145,8 +101,12 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
 
                 if((searchType.equals("I")) && (searchValue != null)) {
                     boolean isNegative;
-                    int intValue = Integer.parseInt(searchValue, 10);
-                    System.out.println(intValue);
+                    int intValue;
+                    try {
+                        intValue = Integer.parseInt(searchValue);
+                    } catch (Exception e) {
+                        intValue = 1;
+                    }
                     isNegative = intValue < 0;
                     if(isNegative) {
                         intValue = intValue*-1;
@@ -155,13 +115,30 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
                     }
                 }
 
-                if (value.type.equals("I") && searchType == "F") {
+                if((searchType.equals("F")) && (searchValue != null)) {
+                    boolean isNegative;
+                    float floatValue;
+                    try {
+                        floatValue = Float.parseFloat(searchValue);
+                    } catch (Exception e) {
+                        floatValue = 1;
+                    }
+                    isNegative = floatValue < 0;
+                    if(isNegative) {
+                        floatValue = floatValue*-1;
+                        searchValue = Float.toString(floatValue);
+                        isUminus = true;
+                    }
+                }
+
+                if (value.type != null && value.type.equals("I") && searchType == "F") {
                     searchType = "I";
                     isItof = true;
                 }
 
                 mo.type = searchType;
                 mo.value = searchValue;
+
                 if (mo.value != null && value.type != null) {
                     MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
                     MyVisitor.generatedOutput.append("push " + searchType + " " + searchValue);
@@ -216,12 +193,11 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
         if(ctx.exp(0) != null) {
             mo = visit(ctx.exp(0));
 
-            if(mo != null) {
-                if(mo.type != null && mo.type != null) {
-                    MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-                    MyVisitor.generatedOutput.append("push "+ mo.type + " " + mo.value);
-                }
+            if(mo.type != null) {
+                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+                MyVisitor.generatedOutput.append("push "+ mo.type + " " + mo.value);
             }
+
             expCounter++;
         }
 
@@ -230,13 +206,14 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
     @Override public MyObject visitRead(gParser.ReadContext ctx) {
         MyObject mo = new MyObject();
         for(var i : ctx.ID()) {
+
             if(vars.containsKey(i.toString())) {
 
                 String type = vars.get(i.toString());
                 MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
                 MyVisitor.generatedOutput.append("read " + type);
                 MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-                MyVisitor.generatedOutput.append("save " + i.toString());
+                MyVisitor.generatedOutput.append("save " + i);
 
             } else {
                 // there should be called method from VerboseErrorListener
@@ -252,7 +229,7 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
         var condition = visit(ctx.exp());
         if(condition.type != null) {
             MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-            MyVisitor.generatedOutput.append("push " + condition.type + " " + condition.value.toString().toLowerCase());
+            MyVisitor.generatedOutput.append("push " + condition.type + " " + condition.value);
         }
 
         MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
@@ -266,6 +243,7 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
             MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
             MyVisitor.generatedOutput.append("jmp " + (labelCounter+1));
         }
+
         MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
         MyVisitor.generatedOutput.append("label " + labelCounter);
 
@@ -296,7 +274,6 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
 
         return mo;
     }
-
     @Override public MyObject visitLoop(gParser.LoopContext ctx) {
         MyObject mo = new MyObject();
 
@@ -318,8 +295,6 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
         labelCounter++;
         return mo;
     }
-    @Override public MyObject visitPar(gParser.ParContext ctx) { return visitChildren(ctx); }
-
     @Override public MyObject visitIdentifier(gParser.IdentifierContext ctx) {
         MyObject mo = new MyObject();
 
@@ -352,6 +327,12 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
             mo.value = leftSide.toString() + rightSide.toString() + "SUB\n";
             MyVisitor.generatedOutput.append("sub");
         }
+
+//        if(leftSide.type == FLOAT || rightSide.type == FLOAT) {
+//            mo.type = FLOAT;
+//        } else {
+//            mo.type = INTEGER;
+//        }
 
         return mo;
     }
