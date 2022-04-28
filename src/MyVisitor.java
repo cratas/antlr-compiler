@@ -24,9 +24,6 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
         for (var l : ctx.line()) {
             if(l.assigment() != null) {
                 visitAssigment(l.assigment());
-//                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-//                MyVisitor.generatedOutput.append("pop");
-
             } else
                 visit(l);
         }
@@ -76,71 +73,88 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
 
         return mo;
     }
-    @Override
-    public MyObject visitAssigment(gParser.AssigmentContext ctx) {
+
+    @Override public MyObject visitAssigment(gParser.AssigmentContext ctx) {
         MyObject mo = new MyObject();
-        boolean isUminus = false;
-        boolean isItof = false;
 
-        if (ctx.exp() != null) {
-            return visit(ctx.exp());
-        }
+        if(ctx.exp() != null) {
+            mo = visit(ctx.exp());
+            boolean isNegative = false;
 
-        var value = visitAssigment(ctx.assigment());
-
-        if (ctx.getChild(0) != null) {
-            if (vars.containsKey(ctx.getChild(0).toString())) {
-
-                String searchValue = null;
-
-                if (ctx.getChild(2).getChild(0).getChild(0) != null) {
-                    searchValue = ctx.getChild(2).getChild(0).getChild(0).getText();
+            if(mo.type == null) {
+                mo.type = "L";
+            }
+            if((mo.type.equals("I")) && (mo.value != null)) {
+                int intValue;
+                try {
+                    intValue = Integer.parseInt(mo.value);
+                } catch (Exception e) {
+                    intValue = 1;
                 }
-                var searchType = vars.get(ctx.getChild(0).toString());
 
-                if((searchType.equals("I")) && (searchValue != null)) {
-                    boolean isNegative;
+                isNegative = intValue < 0;
+                if(isNegative) {
+                    intValue = intValue*-1;
+                    mo.value = Integer.toString(intValue);
+                }
+            }
+
+            if(mo.type != "L") {
+                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+                MyVisitor.generatedOutput.append("push " + mo.type + " " + mo.value);
+            }
+
+            if(isNegative) {
+                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+                MyVisitor.generatedOutput.append("uminus");
+            }
+
+            return mo;
+        } else {
+            if(vars.containsKey(ctx.ID().getText())) {
+                mo = visitAssigment(ctx.assigment());
+                boolean isNegative = false;
+                boolean isItof = false;
+
+                if((mo.type.equals("I")) && (mo.value != null)) {
                     int intValue;
                     try {
-                        intValue = Integer.parseInt(searchValue);
+                        intValue = Integer.parseInt(mo.value);
                     } catch (Exception e) {
                         intValue = 1;
                     }
+
                     isNegative = intValue < 0;
                     if(isNegative) {
                         intValue = intValue*-1;
-                        searchValue = Integer.toString(intValue);
-                        isUminus = true;
+                        mo.value = Integer.toString(intValue);
                     }
                 }
 
-                if((searchType.equals("F")) && (searchValue != null)) {
-                    boolean isNegative;
+                if((mo.type.equals("F")) && (mo.value != null)) {
                     float floatValue;
                     try {
-                        floatValue = Float.parseFloat(searchValue);
+                        floatValue = Float.parseFloat(mo.value);
                     } catch (Exception e) {
                         floatValue = 1;
                     }
+
                     isNegative = floatValue < 0;
                     if(isNegative) {
                         floatValue = floatValue*-1;
-                        searchValue = Float.toString(floatValue);
-                        isUminus = true;
+                        mo.value = Float.toString(floatValue);
                     }
                 }
 
-                if (value.type != null && value.type.equals("I") && searchType == "F") {
-                    searchType = "I";
+                var searchType = vars.get(ctx.getChild(0).toString());
+                if (mo.type != null && mo.type.equals("I") && searchType == "F") {
+                    mo.type = "I";
                     isItof = true;
                 }
 
-                mo.type = searchType;
-                mo.value = searchValue;
-
-                if (mo.value != null && value.type != null) {
+                if(isNegative) {
                     MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-                    MyVisitor.generatedOutput.append("push " + searchType + " " + searchValue);
+                    MyVisitor.generatedOutput.append("uminus");
                 }
 
                 if (isItof) {
@@ -148,30 +162,121 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
                     MyVisitor.generatedOutput.append("itof");
                 }
 
-                if (isUminus) {
-                    MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-                    MyVisitor.generatedOutput.append("uminus");
-                }
-
-    //            vars.put(vars.get(ctx.getChild(0).toString()), searchValue);
-
                 MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-                MyVisitor.generatedOutput.append("save " + ctx.getChild(0).toString());
+                MyVisitor.generatedOutput.append("save " + ctx.ID().getText());
                 MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-                MyVisitor.generatedOutput.append("load " + ctx.getChild(0).toString());
+                MyVisitor.generatedOutput.append("load " + ctx.ID().getText());
+            } else {
+                // there should be error from VerboseErrorListener class
+                System.out.println("Undefined variable");
+            }
 
-                if(!(ctx.getParent().getClass().toString().equals(ctx.assigment().getClass().toString()))) {
-                    MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-                    MyVisitor.generatedOutput.append("pop");
-                }
-
-        } else {
-            System.out.println("Undefined variable");
         }
-    }
+
+        if(!(ctx.getParent().getClass() == ctx.assigment().getClass())) {
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("pop");
+        }
 
         return mo;
     }
+
+//    @Override
+//    public MyObject visitAssigment(gParser.AssigmentContext ctx) {
+//        MyObject mo = new MyObject();
+//        boolean isUminus = false;
+//        boolean isItof = false;
+//
+//        if (ctx.exp() != null) {
+//            return visit(ctx.exp());
+//        }
+//
+//        var value = visitAssigment(ctx.assigment());
+//
+//        if (ctx.getChild(0) != null) {
+//            if (vars.containsKey(ctx.getChild(0).toString())) {
+//
+//                String searchValue = null;
+//
+//                if (ctx.getChild(2).getChild(0).getChild(0) != null) {
+//                    searchValue = ctx.getChild(2).getChild(0).getChild(0).getText();
+//                }
+//                var searchType = vars.get(ctx.getChild(0).toString());
+//
+//                if((searchType.equals("I")) && (searchValue != null)) {
+//                    boolean isNegative;
+//                    int intValue;
+//                    try {
+//                        intValue = Integer.parseInt(searchValue);
+//                    } catch (Exception e) {
+//                        intValue = 1;
+//                    }
+//                    isNegative = intValue < 0;
+//                    if(isNegative) {
+//                        intValue = intValue*-1;
+//                        searchValue = Integer.toString(intValue);
+//                        isUminus = true;
+//                    }
+//                }
+//
+//                if((searchType.equals("F")) && (searchValue != null)) {
+//                    boolean isNegative;
+//                    float floatValue;
+//                    try {
+//                        floatValue = Float.parseFloat(searchValue);
+//                    } catch (Exception e) {
+//                        floatValue = 1;
+//                    }
+//                    isNegative = floatValue < 0;
+//                    if(isNegative) {
+//                        floatValue = floatValue*-1;
+//                        searchValue = Float.toString(floatValue);
+//                        isUminus = true;
+//                    }
+//                }
+//
+//                if (value.type != null && value.type.equals("I") && searchType == "F") {
+//                    searchType = "I";
+//                    isItof = true;
+//                }
+//
+//                mo.type = searchType;
+//                mo.value = searchValue;
+//
+//                if (mo.value != null && value.type != null) {
+//                    MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+//                    MyVisitor.generatedOutput.append("push " + searchType + " " + searchValue);
+//                }
+//
+//                if (isItof) {
+//                    MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+//                    MyVisitor.generatedOutput.append("itof");
+//                }
+//
+//                if (isUminus) {
+//                    MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+//                    MyVisitor.generatedOutput.append("uminus");
+//                }
+//
+//    //            vars.put(vars.get(ctx.getChild(0).toString()), searchValue);
+//
+//                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+//                MyVisitor.generatedOutput.append("save " + ctx.getChild(0).toString());
+//                MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+//                MyVisitor.generatedOutput.append("load " + ctx.getChild(0).toString());
+//
+//                if(!(ctx.getParent().getClass().toString().equals(ctx.assigment().getClass().toString()))) {
+//                    MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+//                    MyVisitor.generatedOutput.append("pop");
+//                }
+//
+//        } else {
+//            System.out.println("Undefined variable");
+//        }
+//    }
+//
+//        return mo;
+//    }
     @Override public MyObject visitPrint(gParser.PrintContext ctx) {
         MyObject mo = new MyObject();
 
@@ -308,39 +413,7 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
 
         return mo;
     }
-    @Override public MyObject visitA(gParser.AContext ctx) {
-        MyObject mo = new MyObject();
 
-        var leftSide = visit(ctx.exp(0));
-        var rightSide = visit(ctx.exp(1));
-
-        if(leftSide.type != null && leftSide.value != null) {
-            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-            MyVisitor.generatedOutput.append("push " + leftSide.type + " " + leftSide.value.toString());
-        }
-
-        if(rightSide.type != null && rightSide.value != null) {
-            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-            MyVisitor.generatedOutput.append("push " + rightSide.type + " " + rightSide.value.toString());
-        }
-
-        if(ctx.op.getText().equals("+")) {
-            mo.value = leftSide.toString() + rightSide.toString() + "ADD\n";
-            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
-            MyVisitor.generatedOutput.append("add");
-        } else if(ctx.op.getText().equals(("-"))) {
-            mo.value = leftSide.toString() + rightSide.toString() + "SUB\n";
-            MyVisitor.generatedOutput.append("sub");
-        }
-
-//        if(leftSide.type == FLOAT || rightSide.type == FLOAT) {
-//            mo.type = FLOAT;
-//        } else {
-//            mo.type = INTEGER;
-//        }
-
-        return mo;
-    }
     @Override public MyObject visitComp(gParser.CompContext ctx) {
         MyObject mo = new MyObject();
 
@@ -517,6 +590,39 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
 
         MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
         MyVisitor.generatedOutput.append("and");
+
+        return mo;
+    }
+    @Override public MyObject visitA(gParser.AContext ctx) {
+        MyObject mo = new MyObject();
+
+        var leftSide = visit(ctx.exp(0));
+        var rightSide = visit(ctx.exp(1));
+
+        if(leftSide.type != null && leftSide.value != null) {
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("push " + leftSide.type + " " + leftSide.value.toString());
+        }
+
+        if(rightSide.type != null && rightSide.value != null) {
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("push " + rightSide.type + " " + rightSide.value.toString());
+        }
+
+        if(ctx.op.getText().equals("+")) {
+            mo.value = leftSide.toString() + rightSide.toString() + "ADD\n";
+            MyVisitor.generatedOutput.append(System.getProperty("line.separator"));
+            MyVisitor.generatedOutput.append("add");
+        } else if(ctx.op.getText().equals(("-"))) {
+            mo.value = leftSide.toString() + rightSide.toString() + "SUB\n";
+            MyVisitor.generatedOutput.append("sub");
+        }
+
+//        if(leftSide.type == FLOAT || rightSide.type == FLOAT) {
+//            mo.type = FLOAT;
+//        } else {
+//            mo.type = INTEGER;
+//        }
 
         return mo;
     }

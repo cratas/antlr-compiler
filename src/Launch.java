@@ -13,7 +13,7 @@ import static org.antlr.v4.runtime.CharStreams.fromFileName;
 public class Launch {
     public static void main(String[] args) {
         try {
-            String source = "input3.txt";
+            String source = "input1.txt";
             System.out.println("Parsing:" + source);
             CharStream cs = (CharStream) fromFileName(source);
             gLexer lexer = new gLexer(cs);
