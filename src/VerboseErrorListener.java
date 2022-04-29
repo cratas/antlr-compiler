@@ -5,7 +5,6 @@ import java.util.List;
 
 public class VerboseErrorListener extends BaseErrorListener {
 
-
     public void SyntaxError(Recognizer recognizer, Token offendingSymbol, int line, int charPositionLine, String msg, RecognitionException e) {
         List<String> stack = ((Parser)recognizer).getRuleInvocationStack();
         Collections.reverse(stack);
@@ -14,14 +13,13 @@ public class VerboseErrorListener extends BaseErrorListener {
         System.out.println("line " + line + ":" + charPositionLine + " at "+ offendingSymbol + ": " + msg);
     }
 
-//    public void datatypeUnknownError(string datatype)
-//    {
-//        Console.Error.WriteLine("datatype '" + datatype + "' unknown");
-//    }
-//
-//    public void variableNotexistError(string variable)
-//    {
-//        Console.Error.WriteLine("variable '" + variable + "' not exist");
-//    }
+    public void unknownDataType(String datatype)
+    {
+        System.out.println("Uknown datatype: " + datatype);
+    }
 
+    public void undefinedVariable(String variable)
+    {
+        System.out.println("Undefined variable: " + variable);
+    }
 }
