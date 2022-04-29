@@ -1,25 +1,18 @@
 import java.util.HashMap;
 import java.util.Map;
 
-public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
+public class MyVisitor extends gBaseVisitor<MyObject> {
     int labelCounter = 0;
     static final String INTEGER = "I";
     static final String STRING = "S";
     static final String FLOAT = "F";
     static final String BOOLEAN = "B";
     static final String ERROR_TYPE = "-";
-    Map<String, String> vars = new HashMap<String, String>();
+    Map<String, String> vars = new HashMap<>();
     public static StringBuilder generatedOutput = new StringBuilder();
     int expCounter = 0;
 
     VerboseErrorListener errorListener = new VerboseErrorListener();
-
-    // Inner class for visiting nodes
-    public class MyObject {
-        public String type;
-        public String value;
-    }
-
     @Override
     public MyObject visitProgram(gParser.ProgramContext ctx) {
         MyObject mo = new MyObject();
@@ -62,8 +55,8 @@ public class MyVisitor extends gBaseVisitor<MyVisitor.MyObject> {
                     mo.value = "true";
                     break;
                 default:
-                    errorListener.unknownDataType(dataType);
-                    System.exit(0);
+//                    errorListener.unknownDataType(dataType);
+//                    System.exit(0);
             }
 
             // output of instructions
