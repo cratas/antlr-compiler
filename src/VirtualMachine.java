@@ -67,12 +67,78 @@ public class VirtualMachine {
                 case "read":
                     read(instructionLine[1]);
                     break;
+                case "and":
+                    logicalOperation("&&");
+                    break;
+                case "or":
+                    logicalOperation("||");
+                    break;
+                case "not":
+                    not();
+                    break;
+                case ">":
+                    compare(">");
+                    break;
+                case "==":
+                    compare("==");
+                    break;
+                case "<":
+                    compare("<");
+                    break;
                 default:
+                    break;
 //                    System.out.println("Unknown instruction");
             }
         }
     }
 
+    private void compare(String operator) {
+        MyObject mo = new MyObject();
+        var rightSide = stack.pop();
+        var leftSide = stack.pop();
+
+        if(operator.equals("<")) {
+            if(Float.parseFloat(leftSide.value) < Float.parseFloat(rightSide.value)) {
+                mo.value = Boolean.toString(true);
+            } else {
+                mo.value = Boolean.toString(false);
+            }
+        } else if(operator.equals(">")) {
+            if(Float.parseFloat(leftSide.value) > Float.parseFloat(rightSide.value)) {
+                mo.value = Boolean.toString(true);
+            } else {
+                mo.value = Boolean.toString(false);
+            }
+        } else if(operator.equals("==")) {
+            if(Float.parseFloat(leftSide.value) == Float.parseFloat(rightSide.value)) {
+                mo.value = Boolean.toString(true);
+            } else {
+                mo.value = Boolean.toString(false);
+            }
+        }
+
+        mo.type = "B";
+        stack.push(mo);
+    }
+
+    private void logicalOperation(String operation) {
+        MyObject mo = new MyObject();
+        var rightSide = stack.pop();
+        var leftSide = stack.pop();
+
+        if(!rightSide.type.equals("B") || !leftSide.type.equals("B")) return;
+
+        if(operation.equals("&&")) {
+            boolean tmp = Boolean.parseBoolean(leftSide.value) && Boolean.parseBoolean(rightSide.value);
+            mo.value = Boolean.toString(tmp);
+        } else if(operation.equals("||")) {
+            boolean tmp = Boolean.parseBoolean(leftSide.value) || Boolean.parseBoolean(rightSide.value);
+            mo.value = Boolean.toString(tmp);
+        }
+
+        mo.type = "B";
+        stack.push(mo);
+    }
     private void print(String countOfPrint) {
         int count = Integer.parseInt(countOfPrint);
 
@@ -82,6 +148,15 @@ public class VirtualMachine {
         }
     }
 
+    private void not() {
+        MyObject mo = stack.pop();
+        if (mo.type == "B") {
+            boolean tmp = Boolean.parseBoolean(mo.type);
+            tmp = !tmp;
+            mo.value = Boolean.toString(tmp);
+            stack.push(mo);
+        }
+    }
     private void push(String dataType, String value) {
         MyObject mo = new MyObject(dataType, value);
         stack.push(mo);
@@ -107,7 +182,7 @@ public class VirtualMachine {
 
         mo.type = dataType;
 
-        System.out.println("Scanning " + dataType + "variable: ");
+        System.out.println("Scanning " + dataType + " variable: ");
         Scanner in = new Scanner(System.in);
         mo.value = in.nextLine();
         stack.push(mo);
