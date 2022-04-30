@@ -1,3 +1,5 @@
+import com.sun.source.doctree.SinceTree;
+
 import java.util.*;
 import java.util.logging.Handler;
 
@@ -15,8 +17,11 @@ public class VirtualMachine {
         for(var i : instructions) {
 
             String[] instructionLine;
+
+
             if(i.contains("push")) {
                 instructionLine = i.split(" ", 3);
+                instructionLine[2] = instructionLine[2].replace("\"", "");
             } else {
                 instructionLine = i.split(" ");
             }
@@ -56,6 +61,12 @@ public class VirtualMachine {
                 case "itof":
                     itof();
                     break;
+                case "concat":
+                    concat();
+                    break;
+                case "read":
+                    read(instructionLine[1]);
+                    break;
                 default:
 //                    System.out.println("Unknown instruction");
             }
@@ -91,6 +102,17 @@ public class VirtualMachine {
 //        stack.pop();
     }
 
+    private void read(String dataType) {
+        MyObject mo = new MyObject();
+
+        mo.type = dataType;
+
+        System.out.println("Scanning " + dataType + "variable: ");
+        Scanner in = new Scanner(System.in);
+        mo.value = in.nextLine();
+        stack.push(mo);
+    }
+
     private void uminus() {
         var o = stack.pop();
 
@@ -106,7 +128,28 @@ public class VirtualMachine {
     }
 
     private void calculation(String operator) {
+        MyObject mo = new MyObject();
+        var rightObject = stack.pop();
+        var leftObject = stack.pop();
+        float result = 0.00f;
 
+        switch (operator) {
+            case "+" -> result = Float.parseFloat(leftObject.value) + Float.parseFloat(rightObject.value);
+            case "-" -> result = Float.parseFloat(leftObject.value) - Float.parseFloat(rightObject.value);
+            case "*" -> result = Float.parseFloat(leftObject.value) * Float.parseFloat(rightObject.value);
+            case "/" -> result = Float.parseFloat(leftObject.value) / Float.parseFloat(rightObject.value);
+        }
+
+        if(rightObject.type == "I" && leftObject.type == "I") {
+            if (operator == "%")
+                result = Integer.parseInt(leftObject.value) % Integer.parseInt(rightObject.value);
+            mo.type = "I";
+            mo.value = Integer.toString((int)result);
+        } else {
+            mo.type = "F";
+            mo.value = Float.toString((float)result);
+        }
+        stack.push(mo);
     }
 
     private void itof() {
@@ -115,8 +158,15 @@ public class VirtualMachine {
         if(o.type.equals("I")) {
             float value = Float.parseFloat(o.value);
             o.value = Float.toString(value);
-            o.type = "F";
             stack.push(o);
         }
+    }
+
+    private void concat() {
+        var second = stack.pop();
+        var first = stack.pop();
+
+        String concatedString = first.value + second.value;
+        stack.push(new MyObject(first.type, concatedString));
     }
 }
