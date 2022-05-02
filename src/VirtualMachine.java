@@ -9,8 +9,11 @@ public class VirtualMachine {
     Stack<MyObject> stack;
 
     int currentBlock = 0;
+
     VirtualMachine(String instructionsBuffer) {
         this.stack = new Stack<MyObject>();
+
+        //convert incoming string into list, split by space and remove empty elements
         instructions = Arrays.asList(instructionsBuffer.split("\\r?\\n"));
         instructions = instructions
                 .stream()
@@ -18,6 +21,7 @@ public class VirtualMachine {
                 .collect(Collectors.toList());
     }
     public void run() {
+        // iterate over all lables and mark them
         for(; currentBlock < instructions.size(); currentBlock++) {
             String instruction = instructions.get(currentBlock);
             if (instruction.startsWith("label")) {
@@ -27,11 +31,13 @@ public class VirtualMachine {
 
         currentBlock = 0;
 
+        // iterate over all lines in code
         for(; currentBlock < instructions.size(); currentBlock++ ) {
 
             String i = instructions.get(currentBlock);
             String[] instructionLine;
 
+            // if instruction is push type, split into 3 elements, otherwise just two
             if(i.contains("push")) {
                 instructionLine = i.split(" ", 3);
                 instructionLine[2] = instructionLine[2].replace("\"", "");
@@ -39,6 +45,7 @@ public class VirtualMachine {
                 instructionLine = i.split(" ");
             }
 
+            // switch for choosing instruction type
             switch (instructionLine[0]) {
                 case "print":
                     print(instructionLine[1]);
@@ -113,6 +120,7 @@ public class VirtualMachine {
         }
     }
 
+    // conditional jmp to another code label
     private void fjmp(String paramId) {
         int id = Integer.parseInt(paramId);
 
@@ -124,6 +132,7 @@ public class VirtualMachine {
         }
     }
 
+    // jump to another code label given by parameter
     private void jmp(String paramId) {
         int id = Integer.parseInt(paramId);
 
@@ -133,6 +142,7 @@ public class VirtualMachine {
             throw new RuntimeException("Label not found.");
     }
 
+    // method for adding new code label into labels structure
     private void label(String paramId) {
         int id = Integer.parseInt(paramId);
 
@@ -142,8 +152,6 @@ public class VirtualMachine {
         MyObject mo = new MyObject();
         var rightSide = stack.pop();
         var leftSide = stack.pop();
-
-
 
         if(operator.equals("<")) {
             if((leftSide.type.equals("I") || leftSide.type.equals("F") && rightSide.type.equals("I") || rightSide.type.equals("F"))) {
@@ -212,7 +220,6 @@ public class VirtualMachine {
         MyObject mo = new MyObject(dataType, value);
         stack.push(mo);
     }
-
     private void save(String var) {
         var o = stack.pop();
         vars.put(var, o);
