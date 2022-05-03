@@ -330,7 +330,6 @@ public class MyVisitor extends gBaseVisitor<MyObject> {
 
         return mo;
     }
-
     @Override public MyObject visitComp(gParser.CompContext ctx) {
         MyObject mo = new MyObject();
 
