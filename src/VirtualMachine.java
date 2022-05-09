@@ -201,11 +201,19 @@ public class VirtualMachine {
     }
     private void print(String countOfPrint) {
         int count = Integer.parseInt(countOfPrint);
+        List<MyObject> l = new ArrayList<>();
 
         for(int i = 0; i < count; i++) {
             var o = stack.pop();
-            System.out.println(o.value);
+            l.add(o);
         }
+
+        Collections.reverse(l);
+
+        for(var o : l) {
+            System.out.print(o.value);
+        }
+        System.out.println();
     }
     private void not() {
         MyObject mo = stack.pop();
